@@ -1,5 +1,30 @@
 import mongoose, { Schema, Types, Document } from 'mongoose';
 
+interface HealthMetric {
+  heart_rate?: number;
+  blood_pressure?: {
+    systolic?: number;
+    diastolic?: number;
+  };
+  oxygen_saturation?: number;
+  respiratory_rate?: number;
+  temperature?: number;
+  updated_at?: Date;
+}
+
+const HealthMetricSchema = new Schema<HealthMetric>({
+  heart_rate: { type: Number },
+  blood_pressure: {
+    systolic: { type: Number },
+    diastolic: { type: Number },
+  },
+  oxygen_saturation: { type: Number },
+  respiratory_rate: { type: Number },
+  temperature: { type: Number },
+  updated_at: { type: Date, default: Date.now },
+});
+
+
 interface IPatient extends Document {
   name: string;
   age: number;
@@ -17,17 +42,8 @@ interface IPatient extends Document {
   room_number: string;
   assigned_doctor?: Types.ObjectId;
   assigned_nurse?: Types.ObjectId;
-  health_metrics?: {
-    heart_rate?: number;
-    blood_pressure?: {
-      systolic?: number;
-      diastolic?: number;
-    };
-    oxygen_saturation?: number;
-    respiratory_rate?: number;
-    temperature?: number;
-    updated_at?: Date;
-  };
+  health_metrics?: HealthMetric[];
+
   createdAt?: Date;
 }
 
@@ -48,17 +64,8 @@ const PatientSchema = new Schema<IPatient>({
   room_number: { type: String, required: true },
   assigned_doctor: { type: Schema.Types.ObjectId, ref: 'Doctor' },
   assigned_nurse: { type: Schema.Types.ObjectId, ref: 'Nurse' },
-  health_metrics: {
-    heart_rate: { type: Number },
-    blood_pressure: { 
-      systolic: { type: Number }, 
-      diastolic: { type: Number } 
-    },
-    oxygen_saturation: { type: Number },
-    respiratory_rate: { type: Number },
-    temperature: { type: Number },
-    updated_at: { type: Date, default: Date.now },
-  },
+  health_metrics: { type: [HealthMetricSchema], default: [] },
+
   createdAt: { type: Date, default: Date.now },
 });
 
@@ -68,3 +75,4 @@ const PatientModel =
     : mongoose.model<IPatient>("Patient", PatientSchema);
 
 export default PatientModel;
+export { HealthMetricSchema };
