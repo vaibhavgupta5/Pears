@@ -28,7 +28,7 @@ const ReportView = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <div className="max-w-4xl text-black mx-auto bg-white  rounded-lg p-6">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">Reports</h2>
       <table className="table-auto w-full border-collapse border border-gray-200">
         <thead className="bg-gray-100">

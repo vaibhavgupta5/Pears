@@ -128,7 +128,7 @@ const BPLevelsChart = () => {
       {/* Title */}
       <div className="text-center">
         <h2 className="text-lg font-semibold">Heart Rate</h2>
-        <p className="text-sm text-gray-500">Recent five visits</p>
+        <p className="text-sm text-gray-500">Recent three visits</p>
       </div>
 
       {/* Chart */}

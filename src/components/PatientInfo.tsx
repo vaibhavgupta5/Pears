@@ -26,7 +26,8 @@ const PatientInfo: React.FC<PatientInfoProps> = ({
   return (
     <div className="flex justify-evenly w-[90%] h-[23vh] items-center space-x-8 bg-white p-6 rounded-lg ">
       <div className="flex space-x-3 flex-row items-center">
-        <User className="w-16 rounded-full bg-blue-500 h-16 text-white p-[3rem] " />
+      <User className="w-[6rem] h-[6rem] rounded-full bg-blue-500 text-white p-6" />
+
         <div className="flex text-black flex-col">
           <p className="text-[22px] font-semibold">{name}</p>
           <span className="text-xs text-gray-500">Patient Name</span>
@@ -34,7 +35,7 @@ const PatientInfo: React.FC<PatientInfoProps> = ({
       </div>
 
       <div className="flex space-x-3 flex-row items-center">
-        <Stethoscope className="w-12 rounded-full bg-blue-500 h-12 text-white p-[3rem] " />
+        <Stethoscope className="w-[6rem] h-[6rem] rounded-full bg-blue-500 text-white p-6 " />
         <div className="flex text-black flex-col">
           <p className="text-[22px] font-semibold">{doctor}</p>
           <span className="text-xs text-gray-500">Doctor Name</span>
@@ -42,7 +43,7 @@ const PatientInfo: React.FC<PatientInfoProps> = ({
       </div>
 
       <div className="flex space-x-3 flex-row items-center">
-        <User className="w-12 rounded-full bg-blue-500 h-12 text-white p-[3rem] " />
+        <User className="w-[6rem] h-[6rem] rounded-full bg-blue-500 text-white p-6 " />
         <div className="flex text-black flex-col">
           <p className="text-[22px] font-semibold">{gender}</p>
           <span className="text-xs text-gray-500">Gender</span>
@@ -50,7 +51,7 @@ const PatientInfo: React.FC<PatientInfoProps> = ({
       </div>
 
       <div className="flex space-x-3 flex-row items-center">
-        <ArrowUp className="w-12 rounded-full bg-blue-500 h-12 text-white p-[3rem] " />
+        <ArrowUp className="w-[6rem] h-[6rem] rounded-full bg-blue-500 text-white p-6 " />
         <div className="flex text-black flex-col">
           <p className="text-[22px] font-semibold">{age}</p>
           <span className="text-xs text-gray-500">Age</span>
@@ -59,7 +60,7 @@ const PatientInfo: React.FC<PatientInfoProps> = ({
 
 
        <div className="flex space-x-3 flex-row items-center">
-        <Droplet className="w-12 rounded-full bg-blue-500 h-12 text-white p-[3rem]" />
+        <Droplet className="w-[6rem] h-[6rem] rounded-full bg-blue-500 text-white p-6" />
         <div className="flex text-black flex-col">
           <p className="text-[22px] font-semibold">{RoomNumber}</p>
           <span className="text-xs text-gray-500">Room Number</span>

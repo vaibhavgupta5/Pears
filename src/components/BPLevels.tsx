@@ -22,7 +22,7 @@ const BPLevelsChart = () => {
       {
         label: "BP Levels",
         data: [], // To hold systolic BP levels
-        borderColor: "rgba(239, 68, 68, 1)", // Tailwind's red-500
+        borderColor: "rgb(249, 115, 22)", // Tailwind's red-500
         backgroundColor: "rgba(252, 165, 165, 0.3)", // Tailwind's red-200
         fill: true,
         tension: 0.4, // Curve effect
@@ -107,14 +107,14 @@ const BPLevelsChart = () => {
     <div className="max-w-sm bg-white rounded-lg text-black p-4">
       {/* Icon */}
       <div className="flex justify-center mb-4">
-        <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full">
+        <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6 text-red-500"
+            className="w-6 h-6 text-[#F97316]"
           >
             <path
               strokeLinecap="round"
@@ -128,7 +128,7 @@ const BPLevelsChart = () => {
       {/* Title */}
       <div className="text-center">
         <h2 className="text-lg font-semibold">BP Levels</h2>
-        <p className="text-sm text-gray-500">Recent five visits</p>
+        <p className="text-sm text-gray-500">Recent three visits</p>
       </div>
 
       {/* Chart */}
