@@ -1,6 +1,7 @@
 import connectDB from "@/lib/connectDB";
 import NurseModel from "@/Models/Nurses";
 import PatientModel, { HealthMetricSchema } from "@/Models/Patient";
+import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -57,6 +58,13 @@ export async function POST(req: NextRequest){
             }
         )}
     
+        // if (patient && patient?.assigned_doctor) {
+        //     patient.assigned_doctor = new mongoose.Types.ObjectId(patient.assigned_doctor) || '';
+        //   }
+        //   if (data.assigned_nurse) {
+        //     data.assigned_nurse = new mongoose.Types.ObjectId(data.assigned_nurse);
+        //   }
+
         const newPatient = new PatientModel({
             name,
             age,
@@ -65,8 +73,8 @@ export async function POST(req: NextRequest){
             address,
             emergency_contact,
             room_number,
-            assigned_doctor,
-            assigned_nurse,
+            assigned_doctor : assigned_doctor ? new mongoose.Types.ObjectId(assigned_doctor) : '',
+            assigned_nurse: assigned_nurse ? new mongoose.Types.ObjectId(assigned_nurse) : '',
             health_metrics: {
                 heart_rate,
                 blood_pressure:{
@@ -92,7 +100,7 @@ export async function POST(req: NextRequest){
         return NextResponse.json({
             status: 500,
             body: {
-                message: 'Server Error'
+                message: error.message
             }
         })
         

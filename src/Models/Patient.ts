@@ -40,6 +40,7 @@ interface IPatient extends Document {
     phone?: string;
   };
   room_number: string;
+  reports?: Types.ObjectId[];  // Reference to reports
   assigned_doctor?: Types.ObjectId;
   assigned_nurse?: Types.ObjectId;
   health_metrics?: HealthMetric[];
@@ -65,13 +66,13 @@ const PatientSchema = new Schema<IPatient>({
   assigned_doctor: { type: Schema.Types.ObjectId, ref: 'Doctor' },
   assigned_nurse: { type: Schema.Types.ObjectId, ref: 'Nurse' },
   health_metrics: { type: [HealthMetricSchema], default: [] },
-
+  reports: [{ type: Schema.Types.ObjectId, ref: 'Report' }], // New field for reports
   createdAt: { type: Date, default: Date.now },
 });
 
 const PatientModel =
   mongoose.models && mongoose.models.Patient
-    ? (mongoose.models.User as mongoose.Model<IPatient>)
+    ? (mongoose.models.Patient as mongoose.Model<IPatient>)
     : mongoose.model<IPatient>("Patient", PatientSchema);
 
 export default PatientModel;
