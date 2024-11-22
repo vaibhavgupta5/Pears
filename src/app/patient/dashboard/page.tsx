@@ -7,18 +7,23 @@ import HeartRate from "@/components/HeartRate";
 import PatientInfo from "@/components/PatientInfo";
 import ReportView from "@/components/Reportview";
 import SugarLvl from "@/components/SugarLevels";
+import Chat from "@/components/Chat"; // Import the Chat component
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [storedData, setStoredData] = useState<any>(null);
   const [Doctor, setDoctor] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false); // AI Prediction Modal state
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false); // Chat Drawer state
   const [healthMetrics, setHealthMetrics] = useState<any[]>([]); // Patient vitals
   const [analysis, setAnalysis] = useState<string | null>(null); // AI Prediction result
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [room, setRoom] = useState("");
 
+  const router = useRouter();
   useEffect(() => {
     // Get data from localStorage
     const data = localStorage.getItem("patientData");
@@ -27,6 +32,10 @@ export default function Home() {
       setStoredData(parsedData);
       getDoctor(parsedData.assigned_doctor);
       getHealthMetrics(parsedData.room_number);
+      setRoom(parsedData.room_number);
+    }
+    else{
+      router.push('/patient/login');
     }
   }, []);
 
@@ -67,25 +76,23 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header Section */}
-      <div className="w-full fixed top-0 h-[10vh] bg-blue-600 flex items-center justify-between px-6 shadow-md">
-        <div className="text-white text-lg font-bold">Care Link</div>
+      <div className="w-full fixed top-0 h-[10vh] bg-blue-600 flex items-center justify-between px-6">
+        <div className="text-white text-2xl font-bold">CARE LINK</div>
         <div className="flex gap-4">
           <button
             className="px-4 py-2 bg-white text-blue-600 rounded-md font-medium shadow hover:bg-blue-100 transition"
-            onClick={() => setIsModalOpen(true)} // Open modal
+            onClick={() => setIsAIModalOpen(true)} // Open AI Prediction modal
           >
             AI Prediction
           </button>
+          <button
+            className="px-4 py-2 bg-white text-blue-600 rounded-md font-medium shadow hover:bg-blue-100 transition"
+            onClick={() => setIsChatDrawerOpen(true)} // Open Chat Drawer
+          >
+            Chat
+          </button>
         </div>
       </div>
-
-      {/* Welcome Section
-      <div className="w-full bg-blue-100 text-blue-900 py-4 px-6 shadow">
-        <h2 className="text-xl font-semibold">
-          Welcome, {storedData?.name || "Patient"}!
-        </h2>
-        <p className="text-sm">We are here to ensure your health is our priority.</p>
-      </div> */}
 
       {/* Main Content */}
       <div className="flex pt-[13vh] flex-col pb-6 space-y-6 w-[100%] justify-center items-center">
@@ -122,46 +129,72 @@ export default function Home() {
         &copy; 2024 Care Link. All rights reserved.
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-  <div className="fixed overflow-y-scroll inset-0 bg-black bg-opacity-50 flex justify-end z-50"
-  onClick={() => setIsModalOpen(false)} >
-    <div className="bg-white h-full w-[30%] shadow-lg relative"
-    onClick={(e) => e.stopPropagation()} >
-      <button
-        className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
-        onClick={() => setIsModalOpen(false)} // Close sidebar
-      >
-        &times;
-      </button>
-      <div className="p-6">
-        <h2 className="text-xl font-bold text-blue-600 mb-4">AI Prediction</h2>
-        <div className="mb-4 text-black mt-2">
-          <p className="pb-4">Analyze the collected health metrics using AI.</p>
-          <button
-            onClick={analyzeVitals}
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {loading ? 'Analyzing...' : 'Analyze Vitals'}
-          </button>
-        </div>
-        {analysis && (
+      {/* AI Prediction Drawer */}
+      {isAIModalOpen && (
+        <div
+          className="fixed inset-0   bg-black bg-opacity-50 flex justify-end z-50"
+          onClick={() => setIsAIModalOpen(false)} // Close drawer
+        >
           <div
-            className="p-4 bg-green-100 text-green-700 rounded-md"
-            dangerouslySetInnerHTML={{ __html: analysis }}
-          />
-        )}
-        {error && (
-          <div className="p-4 bg-red-100 text-red-700 rounded-md">
-            <p>{error}</p>
+            className="bg-white h-full overflow-y-scroll w-[30%] shadow-lg relative"
+            onClick={(e) => e.stopPropagation()} // Prevent click propagation
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
+              onClick={() => setIsAIModalOpen(false)} // Close sidebar
+            >
+              &times;
+            </button>
+            <div className="p-6 ">
+              <h2 className="text-xl font-bold text-blue-600 mb-4">AI Prediction</h2>
+              <div className="mb-4 text-black mt-2">
+                <p className="pb-4">Analyze the collected health metrics using AI.</p>
+                <button
+                  onClick={analyzeVitals}
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {loading ? 'Analyzing...' : 'Analyze Vitals'}
+                </button>
+              </div>
+              {analysis && (
+                <div
+                  className="p-4 bg-green-100 text-green-700  rounded-md"
+                  dangerouslySetInnerHTML={{ __html: analysis }}
+                />
+              )}
+              {error && (
+                <div className="p-4 bg-red-100 text-red-700 rounded-md">
+                  <p>{error}</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+        </div>
+      )}
 
+      {/* Chat Drawer */}
+      {isChatDrawerOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50"
+          onClick={() => setIsChatDrawerOpen(false)} // Close drawer
+        >
+          <div
+            className="bg-white h-full w-[50%] shadow-lg relative"
+            onClick={(e) => e.stopPropagation()} // Prevent click propagation
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-black text-lg"
+              onClick={() => setIsChatDrawerOpen(false)} // Close drawer
+            >
+              &times;
+            </button>
+            <div className="">
+              <Chat room={room} /> {/* Embed Chat Component */}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

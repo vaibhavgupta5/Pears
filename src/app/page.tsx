@@ -1,135 +1,110 @@
 'use client';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { Shield } from 'lucide-react';
 
-import React, { useState } from "react";
-import { Shield, Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+const AdminLoginPage: React.FC = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [pass, setPass] = useState<string>('');
+  const router = useRouter();
 
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-const LoginPage: React.FC = () => {
-  const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
-  const router = useRouter()
-
-  const togglePassword = (): void => {
-    setPasswordVisible(!passwordVisible);
+    if (pass === 'admin123') {
+      localStorage.setItem('isLogin', 'true');
+      router.push('/admin');
+      
+      
+    }
+    else {
+      setError('Incorrect Password');
+    }
+   
+   
   };
 
-  const validateForm = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-    const email = (document.getElementById("email") as HTMLInputElement).value;
-    console.log(email)
-    const password = (document.getElementById("password") as HTMLInputElement)
-      .value;
-      console.log(password)
-
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-
-    if (!email) {
-      alert("Please enter your email.");
-      return;
-    } else if (!emailPattern.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-
-    if (!password) {
-      alert("Please enter your password.");
-      return;
-    }
-
-    if(email == "test@test.com" && password == "12345678") {
-      console.log("first")
-      router.push("/dashboard");
-      alert("Login successful!");
-      return;
+  const togglePasswordVisibility = () => {
+    const passwordField = document.getElementById('password') as HTMLInputElement;
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+    } else {
+      passwordField.type = 'password';
     }
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-green-500 via-teal-500 to-green-400">
-      <div className="flex flex-1 items-center justify-center">
-        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-2 text-2xl font-bold text-green-500 mb-8">
-            <Shield className="h-8 w-8 text-blue-500" />
-            Medflex
+    <div className="flex text-black h-screen">
+      {/* Left Background Section */}
+      <div
+  className="flex-1 hidden md:block bg-cover bg-center"
+  style={{
+    backgroundImage:
+      'url("https://images.unsplash.com/photo-1524758870432-af57e54afa26?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")',
+  }}
+></div>
+
+
+      {/* Right Login Section */}
+      <div className="flex flex-col items-center justify-center w-full max-w-md p-6 mx-auto bg-white  rounded-lg">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-6 text-2xl font-bold text-blue-500">
+          <span>CareLink Admin Login</span>
+        </div>
+
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 text-sm text-red-700 bg-red-100 rounded">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="w-full">
+          {/* Email Field */}
+          <div className="mb-4">
+           
+            <input
+              type="text"
+              id="roomNumber"
+              placeholder="Enter the Password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
           </div>
 
-          {/* Title */}
-          <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+          {/* Password Field */}
+          <div className="mb-4">
+      
+            <div className="relative">
+           
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-green-500"
+              >
+                <i className="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+       
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
             Login
-          </h2>
+          </button>
+        </form>
 
-          {/* Login Form */}
-          <form id="login-form" onSubmit={validateForm} className="text-black">
-            <div className="mb-4">
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Your email <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                required
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-300 focus:outline-none"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Your password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={passwordVisible ? "text" : "password"}
-                  id="password"
-                  placeholder="Enter password"
-                  required
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-300 focus:outline-none"
-                />
-                <div
-                  className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-400 hover:text-green-500"
-                  onClick={togglePassword}
-                >
-                  {passwordVisible ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <a
-              href="#"
-              className="text-sm text-green-500 hover:underline mb-4 inline-block text-right"
-            >
-              Forgot password?
-            </a>
-
-            <button
-              type="submit"
-              className="w-full bg-green-500 text-white py-2 px-4 rounded-md font-medium hover:bg-green-600 transition"
-            >
-              Login
-            </button>
-
-            <div className="mt-4 text-center text-sm">
-              Not registered?{" "}
-              <a href="#" className="text-blue-500 font-semibold hover:underline">
-                Signup
-              </a>
-            </div>
-          </form>
-        </div>
+      
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default AdminLoginPage;

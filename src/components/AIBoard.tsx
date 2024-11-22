@@ -71,13 +71,13 @@ const HealthAnalysis = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto bg-white shadow-md p-6 rounded-lg">
+    <div className="max-w-xl mx-auto bg-white overflow-y-scroll p-6 rounded-lg">
       <h1 className="text-2xl font-bold text-center text-blue-600 mb-4">
         Health Vitals Analysis
       </h1>
 
       {/* Vitals Display */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-2  gap-4 mb-6">
         {Object.entries(vitals).map(([key, value]) => (
           <div key={key} className="flex flex-col">
             <label htmlFor={key} className="text-sm font-medium text-gray-600 mb-2">
@@ -106,7 +106,7 @@ const HealthAnalysis = () => {
       {/* Results Section */}
       <div className="mt-6">
         {analysis && (
-          <div className="p-4 bg-green-100 text-green-700 rounded-md">
+          <div className="p-4 overflow-y-scroll bg-green-100 text-green-700 rounded-md">
             <h2 className="font-bold mb-2">Analysis Result:</h2>
             <p>{analysis}</p>
           </div>

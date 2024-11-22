@@ -35,7 +35,7 @@ const PatientLoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex text-black h-screen">
       {/* Left Background Section */}
       <div
   className="flex-1 hidden md:block bg-cover bg-center"

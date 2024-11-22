@@ -14,9 +14,33 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate the prompt for Cohere
-    const prompt = `Analyze the following health vitals and provide a concise assessment within 150 characters for each entry. Include possible health conditions or diseases. Format the response with HTML tags for readability. Use bold headings for key metrics and separate each heading with a line break. Provide actionable recommendations alongside your analysis. Ensure the entire response remains clear, structured, and compact\n\n${healthMetrics.map((metric, index) => 
-      `Entry ${index + 1}:\nHeart Rate: ${metric.heart_rate || 'N/A'} bpm\nBlood Pressure: ${metric.blood_pressure?.systolic || 'N/A'}/${metric.blood_pressure?.diastolic || 'N/A'} mmHg\nOxygen Saturation: ${metric.oxygen_saturation || 'N/A'}%\nRespiratory Rate: ${metric.respiratory_rate || 'N/A'} breaths/min\nTemperature: ${metric.temperature || 'N/A'}°F\nDate: ${metric.updated_at}\n\n`
-    ).join('')}Summarize the analysis for each entry with actionable insights and suggestions for potential improvement. Write down all vital count and write if it is ideal or not. Do not seperate by entries count. do not exceed 150 characters in total. Add a last section of summary and recommendation add them to strong tag too. Use Strong tag for bold and <br> for next line. `;
+    const prompt = `Analyze the following health vitals and provide a concise assessment within 150 characters for each entry. Include possible health conditions or diseases. Format the response using HTML tags, following the specified layout for each entry. Each entry should adhere to this structure:
+
+<strong>Entry X:</strong><br>
+<strong>Heart Rate:</strong> [value] bpm - [status]<br>
+<strong>Blood Pressure:</strong> [systolic/diastolic] mmHg - [status]<br>
+<strong>Oxygen Saturation:</strong> [value]% - [status]<br>
+<strong>Respiratory Rate:</strong> [value] breaths/min - [status]<br>
+<strong>Temperature:</strong> [value]°F - [status]<br>
+<strong>Date:</strong> [date]<br>
+[Concise Analysis within 150 characters]<br><br>
+
+${healthMetrics.map((metric, index) => 
+      `<strong>Entry ${index + 1}:</strong><br>
+<strong>Heart Rate:</strong> ${metric.heart_rate || 'N/A'} bpm - ${metric.heart_rate >= 60 && metric.heart_rate <= 100 ? 'Ideal' : 'Check required'}<br>
+<strong>Blood Pressure:</strong> ${metric.blood_pressure?.systolic || 'N/A'}/${metric.blood_pressure?.diastolic || 'N/A'} mmHg - ${metric.blood_pressure?.systolic >= 90 && metric.blood_pressure?.systolic <= 120 && metric.blood_pressure?.diastolic >= 60 && metric.blood_pressure?.diastolic <= 80 ? 'Ideal' : 'Monitor levels'}<br>
+<strong>Oxygen Saturation:</strong> ${metric.oxygen_saturation || 'N/A'}% - ${metric.oxygen_saturation >= 95 ? 'Normal' : 'Potential issue'}<br>
+<strong>Respiratory Rate:</strong> ${metric.respiratory_rate || 'N/A'} breaths/min - ${metric.respiratory_rate >= 12 && metric.respiratory_rate <= 20 ? 'Ideal' : 'Assess further'}<br>
+<strong>Temperature:</strong> ${metric.temperature || 'N/A'}°F - ${metric.temperature >= 97 && metric.temperature <= 99 ? 'Normal' : 'Evaluate'}<br>
+<strong>Date:</strong> ${metric.updated_at}<br>
+[Add specific analysis and recommendation here]<br><br>`
+).join('')}
+
+<strong>Summary and Recommendations:</strong><br>
+Provide a summary based on the overall analysis and key recommendations for improvement. Ensure this section highlights essential actions, using <strong> tags for emphasis.<br>
+Format response strictly to match this layout and use <strong> for bold sections and <br> for line breaks.
+`;
+
 
     // Send request to Cohere API
     const response = await axios.post(
