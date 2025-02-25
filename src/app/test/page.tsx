@@ -1,99 +1,201 @@
 'use client';
-import React, { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 
-const socket = io("http://localhost:8000");
+import React, { useState } from 'react';
+import axios from 'axios';
+import qs from 'qs';
 
-const Chat = () => {
-  const [room, setRoom] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<{ id: number; name: string; message: string }[]>([]);
+const AddReportPage: React.FC = () => {
+  const [formData, setFormData] = useState({
+    room_number: '',
+    patient_id: '',
+    nurse_id: '',
+    report_date: '',
+    medications_administered: '',
+    message: '',
+  });
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("patientData");
-    const roomNumber = storedData ? JSON.parse(storedData)?.room_number : null;
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    if (roomNumber) {
-      setRoom(roomNumber);
-      socket.emit("join-room", roomNumber);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-      // Listen for initial messages
-      socket.on("initial-message", (msgs) => {
-        setMessages(msgs);
-      });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
-      // Listen for new chat messages
-      socket.on("chat message", (msg) => {
-        setMessages((prevMessages) => [...prevMessages, msg]);
-      });
+  const fetchRoomData = async (roomNumber: string) => {
+    try {
+      const response = await axios.post('/api/get/getpatientbyroom', { room_number: roomNumber });
+      const data = response.data.body.data;
+      
+
+      if (!data || !data._id) {
+        setErrorMessage('No patient found for the given room number.');
+        return;
+      }
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        patient_id: data._id || '',
+        nurse_id: data.assigned_nurse || '',
+      }));
+
+      setErrorMessage(null);
+    } catch (error: any) {
+      console.error('Error fetching room data:', error);
+      setErrorMessage('Invalid room number or unable to fetch details.');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    if (!file) {
+      setErrorMessage('Please upload a prescription file.');
+      setLoading(false);
+      return;
     }
 
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    try {
+      // Step 1: Upload file to the `upload` API
+      const fileData = new FormData();
+      fileData.append('file', file);
 
-  const sendMessage = () => {
-    if (message.trim()) {
-      const msg = {
-        id: Date.now(),
-        name: "Patient", // Replace with actual user name if available
-        message,
-      };
+      const uploadResponse = await axios.post('/api/upload', fileData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-      socket.emit("chat message", { room, msg });
-      setMessage("");
+      const uploadedFileUrl = uploadResponse.data.url;
+
+      console.log(uploadResponse.data);
+
+      // Step 2: Submit report data to the `addReport` API
+      const reportData = qs.stringify({
+        patient_id: formData.patient_id,
+        nurse_id: formData.nurse_id,
+        report_date: formData.report_date,
+        medications_administered: formData.medications_administered.split(','),
+        message: formData.message,
+        file_url: uploadedFileUrl,
+      });
+
+      const reportResponse = await axios.post('/api/create/addReport', reportData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+
+      setSuccessMessage(reportResponse.data.body.message);
+      setFile(null); // Reset file input
+      setFormData({
+        room_number: '',
+        patient_id: '',
+        nurse_id: '',
+        report_date: '',
+        medications_administered: '',
+        message: '',
+      });
+    } catch (error: any) {
+      console.error('Error submitting report:', error);
+      setErrorMessage('Failed to add the report. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex text-black flex-col h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 text-white py-4 px-6 shadow-md">
-        <h2 className="text-lg font-bold">Chat Room: {room || "Loading..."}</h2>
-      </div>
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-6">
+      <h1 className="text-3xl font-bold text-blue-800 text-center mb-8">Add Report</h1>
+      <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
+        {errorMessage && <p className="mb-4 text-red-600 font-semibold">{errorMessage}</p>}
+        {successMessage && <p className="mb-4 text-green-600 font-semibold">{successMessage}</p>}
 
-      {/* Messages */}
-      <div className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.name === "Patient" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-xs px-4 py-2 rounded-lg shadow-md ${
-                  msg.name === "Patient" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
-                }`}
-              >
-                <p className="text-sm font-bold">{msg.name}:</p>
-                <p>{msg.message}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Room Number */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Room Number</label>
+            <input
+              type="text"
+              name="room_number"
+              value={formData.room_number}
+              onChange={(e) => {
+                handleInputChange(e);
+                fetchRoomData(e.target.value);
+              }}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-      {/* Input */}
-      <div className="flex items-center border-t border-gray-300 p-4 bg-white">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-        />
-        <button
-          onClick={sendMessage}
-          className="ml-4 px-6 py-2 bg-blue-600 text-white font-medium rounded-md shadow hover:bg-blue-700 transition"
-        >
-          Send
-        </button>
+          {/* Report Date */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Report Date</label>
+            <input
+              type="date"
+              name="report_date"
+              value={formData.report_date}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
+
+          {/* Medications Administered */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Medications Administered</label>
+            <input
+              type="text"
+              name="medications_administered"
+              value={formData.medications_administered}
+              onChange={handleInputChange}
+              placeholder="Enter medications separated by commas"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Message */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Message</label>
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleInputChange}
+              placeholder="Enter any additional message"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            ></textarea>
+          </div>
+
+          {/* File Upload */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">Upload Prescription</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition duration-300 disabled:opacity-50"
+            disabled={loading}
+          >
+            {loading ? 'Submitting...' : 'Submit Report'}
+          </button>
+        </form>
       </div>
     </div>
   );
 };
 
-export default Chat;
+export default AddReportPage;

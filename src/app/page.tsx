@@ -1,8 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Shield } from 'lucide-react';
 
 const AdminLoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +64,7 @@ const AdminLoginPage: React.FC = () => {
           <div className="mb-4">
            
             <input
-              type="text"
+              type="password"
               id="roomNumber"
               placeholder="Enter the Password"
               value={pass}
