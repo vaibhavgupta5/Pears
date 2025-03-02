@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/patient/login"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/patient/login", "src/lib/peerChat.js", "src/components/PeersChat.jsx", "src/app/Chat/page.jsx"],
   "exclude": ["node_modules"]
 }
